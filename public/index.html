@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,33 +7,130 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="container">
     <div class="container-box">
-        <h2>MedTrack Dashboard</h2>
-        <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1em;">Healthcare Management System</p>
-        
-        <div class="card-list">
-            <div class="card">
+
+        <h2>🏥 MedTrack Dashboard</h2>
+        <p style="text-align:center; margin-bottom:30px; color:#666;">
+            Smart Medical Inventory & Patient Management System
+        </p>
+
+        <!-- SUMMARY CARDS -->
+        <div class="card-list dashboard-grid">
+
+            <div class="card summary-card">
+                <div class="card-title">💊 Total Medicines</div>
+                <div class="dashboard-number" id="totalMedicines">0</div>
+            </div>
+
+            <div class="card summary-card">
+                <div class="card-title">👥 Total Patients</div>
+                <div class="dashboard-number" id="totalPatients">0</div>
+            </div>
+
+            <div class="card summary-card revenue-card">
+                <div class="card-title">💰 Today's Revenue</div>
+                <div class="dashboard-number" id="todayRevenue">₹0</div>
+            </div>
+
+            <div class="card summary-card warning-card">
+                <div class="card-title">⚠ Low Stock Items</div>
+                <div class="dashboard-number" id="lowStockCount">0</div>
+            </div>
+
+        </div>
+
+        <!-- ALERT SECTION -->
+        <div class="alert-section">
+
+            <div class="card alert-card">
+                <div class="card-title">🚨 Low Stock Alert</div>
+                <div id="lowStockList">
+                    <p style="color:#888;">No low stock items</p>
+                </div>
+            </div>
+
+            <div class="card alert-card">
+                <div class="card-title">📅 Recheck Today</div>
+                <div id="recheckList">
+                    <p style="color:#888;">No patients for recheck today</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="card-list" style="margin-top:40px;">
+
+            <div class="card nav-card">
                 <div class="card-title">💊 Manage Medicines</div>
-                <div class="card-info">Add, edit, delete medicines and manage inventory stock levels</div>
                 <div class="card-actions">
-                    <a href="medicines.html" style="display: inline-block; width: 100%; text-align: center; margin-top: 15px; padding: 12px 25px;">Go to Medicines</a>
+                    <a href="medicines.html" class="nav-btn">Open Medicines</a>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card nav-card">
                 <div class="card-title">🏥 Manage Patients</div>
-                <div class="card-info">Add, edit, delete patient records and assign medicines</div>
                 <div class="card-actions">
-                    <a href="patients.html" style="display: inline-block; width: 100%; text-align: center; margin-top: 15px; padding: 12px 25px;">Go to Patients</a>
+                    <a href="patients.html" class="nav-btn">Open Patients</a>
                 </div>
             </div>
+
         </div>
 
-        <div style="text-align: center; margin-top: 40px; color: #999; font-size: 0.9em;">
-            <p>© 2026 MedTrack - Medical Inventory Management System</p>
+        <div style="text-align:center; margin-top:40px; font-size:0.9em; color:#aaa;">
+            © 2026 MedTrack | Built by Prajwal
         </div>
+
     </div>
 </div>
+
+<script src="script.js"></script>
+
+<script>
+async function loadDashboard() {
+    try {
+        const res = await fetch('/api/dashboard');
+        const data = await res.json();
+
+        document.getElementById('totalMedicines').textContent = data.totalMedicines;
+        document.getElementById('totalPatients').textContent = data.totalPatients;
+        document.getElementById('todayRevenue').textContent = "₹" + data.todayRevenue;
+        document.getElementById('lowStockCount').textContent = data.lowStockCount;
+
+        loadAlerts();
+
+    } catch (err) {
+        console.error("Dashboard error:", err);
+    }
+}
+
+async function loadAlerts() {
+    try {
+        const res = await fetch('/api/medicines');
+        const medicines = await res.json();
+
+        const lowStock = medicines.filter(m => m.quantity <= 10);
+        const lowStockList = document.getElementById("lowStockList");
+
+        if (lowStock.length === 0) {
+            lowStockList.innerHTML = "<p style='color:#888;'>No low stock items</p>";
+        } else {
+            lowStockList.innerHTML = lowStock.map(m =>
+                `<div class="alert-item">
+                    ${m.name} - Only ${m.quantity} left
+                </div>`
+            ).join("");
+        }
+
+    } catch (err) {
+        console.error("Alert error:", err);
+    }
+}
+
+loadDashboard();
+</script>
+
 </body>
 </html>

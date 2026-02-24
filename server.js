@@ -8,8 +8,22 @@ app.use(express.static("public"));
 
 const DATA_FILE = path.join(__dirname, "data.json");
 
+/* ================= SAFE READ / WRITE ================= */
+
 function readData() {
-    return JSON.parse(fs.readFileSync(DATA_FILE));
+    if (!fs.existsSync(DATA_FILE)) {
+        const initialData = { medicines: [], patients: [], sales: [] };
+        fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
+        return initialData;
+    }
+
+    const raw = JSON.parse(fs.readFileSync(DATA_FILE));
+
+    if (!raw.medicines) raw.medicines = [];
+    if (!raw.patients) raw.patients = [];
+    if (!raw.sales) raw.sales = [];
+
+    return raw;
 }
 
 function writeData(data) {
@@ -18,9 +32,17 @@ function writeData(data) {
 
 /* ================= MEDICINES ================= */
 
+// Add Medicine
 app.post("/api/medicines", (req, res) => {
     const data = readData();
-    const { name, expiry, quantity, batch, price = 0, discount = 0 } = req.body;
+    let { name, expiry, quantity, batch, price = 0, discount = 0 } = req.body;
+
+    if (!name || !expiry || !quantity)
+        return res.status(400).json({ error: "Required fields missing" });
+
+    quantity = parseInt(quantity);
+    price = parseFloat(price);
+    discount = parseFloat(discount);
 
     const finalPrice = price - (price * discount / 100);
 
@@ -28,18 +50,20 @@ app.post("/api/medicines", (req, res) => {
         id: Date.now().toString(),
         name,
         expiry,
-        quantity: parseInt(quantity),
+        quantity,
         batch,
-        price: parseFloat(price),
-        discount: parseFloat(discount),
+        price,
+        discount,
         finalPrice
     };
 
     data.medicines.push(newMedicine);
     writeData(data);
-    res.json({ message: "Medicine added" });
+
+    res.json({ message: "Medicine added successfully" });
 });
 
+// Get Medicines
 app.get("/api/medicines", (req, res) => {
     const data = readData();
     const search = req.query.search;
@@ -55,63 +79,83 @@ app.get("/api/medicines", (req, res) => {
     res.json(data.medicines);
 });
 
+// Update Medicine
 app.put("/api/medicines/:id", (req, res) => {
     const data = readData();
-    const index = data.medicines.findIndex(m => m.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: "Not found" });
+    const { id } = req.params;
 
-    data.medicines[index] = { ...data.medicines[index], ...req.body };
+    const index = data.medicines.findIndex(m => m.id === id);
+    if (index === -1)
+        return res.status(404).json({ error: "Medicine not found" });
+
+    const updated = { ...data.medicines[index], ...req.body };
+
+    // Recalculate final price if price or discount changed
+    updated.price = parseFloat(updated.price);
+    updated.discount = parseFloat(updated.discount);
+    updated.quantity = parseInt(updated.quantity);
+
+    updated.finalPrice =
+        updated.price - (updated.price * updated.discount / 100);
+
+    data.medicines[index] = updated;
     writeData(data);
-    res.json({ message: "Updated" });
+
+    res.json({ message: "Medicine updated" });
 });
 
+// Delete Medicine
 app.delete("/api/medicines/:id", (req, res) => {
     const data = readData();
     data.medicines = data.medicines.filter(m => m.id !== req.params.id);
     writeData(data);
-    res.json({ message: "Deleted" });
+    res.json({ message: "Medicine deleted" });
 });
 
+// Reduce Stock
 app.post("/api/reduce-stock/:id", (req, res) => {
     const data = readData();
-    const { quantity } = req.body;
+    const quantity = parseInt(req.body.quantity);
 
     const med = data.medicines.find(m => m.id === req.params.id);
-    if (!med) return res.status(404).json({ error: "Not found" });
+    if (!med)
+        return res.status(404).json({ error: "Medicine not found" });
 
     if (med.quantity < quantity)
         return res.status(400).json({ error: "Not enough stock" });
 
-    med.quantity -= parseInt(quantity);
+    med.quantity -= quantity;
     writeData(data);
-    res.json({ message: "Stock reduced" });
+
+    res.json({ message: "Stock reduced successfully" });
 });
 
 /* ================= PATIENTS ================= */
 
+// Add Patient
 app.post("/api/patients", (req, res) => {
     const data = readData();
-    const { name, age, gender, disease, recheckDays = 7 } = req.body;
+    const { name, age, gender, disease } = req.body;
 
-    const nextRecheck = new Date();
-    nextRecheck.setDate(nextRecheck.getDate() + parseInt(recheckDays));
+    if (!name || !age || !gender || !disease)
+        return res.status(400).json({ error: "Required fields missing" });
 
     const newPatient = {
         id: Date.now().toString(),
         name,
-        age,
+        age: parseInt(age),
         gender,
         disease,
-        recheckDays,
-        nextRecheck: nextRecheck.toISOString().split("T")[0],
         medicines: []
     };
 
     data.patients.push(newPatient);
     writeData(data);
-    res.json({ message: "Patient added" });
+
+    res.json({ message: "Patient added successfully" });
 });
 
+// Get Patients
 app.get("/api/patients", (req, res) => {
     const data = readData();
     const search = req.query.search;
@@ -127,21 +171,29 @@ app.get("/api/patients", (req, res) => {
     res.json(data.patients);
 });
 
+// Update Patient
 app.put("/api/patients/:id", (req, res) => {
     const data = readData();
     const index = data.patients.findIndex(p => p.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: "Not found" });
 
-    data.patients[index] = { ...data.patients[index], ...req.body };
+    if (index === -1)
+        return res.status(404).json({ error: "Patient not found" });
+
+    data.patients[index] = {
+        ...data.patients[index],
+        ...req.body,
+    };
+
     writeData(data);
-    res.json({ message: "Updated" });
+    res.json({ message: "Patient updated" });
 });
 
+// Delete Patient
 app.delete("/api/patients/:id", (req, res) => {
     const data = readData();
     data.patients = data.patients.filter(p => p.id !== req.params.id);
     writeData(data);
-    res.json({ message: "Deleted" });
+    res.json({ message: "Patient deleted" });
 });
 
 /* ================= ASSIGN MEDICINE ================= */
@@ -150,89 +202,59 @@ app.post("/api/assign-medicine", (req, res) => {
     const data = readData();
     const { patientId, medicineId, quantity, dosage } = req.body;
 
+    const qty = parseInt(quantity);
+
     const patient = data.patients.find(p => p.id === patientId);
     const medicine = data.medicines.find(m => m.id === medicineId);
 
     if (!patient || !medicine)
         return res.status(404).json({ error: "Not found" });
 
-    if (medicine.quantity < quantity)
+    if (medicine.quantity < qty)
         return res.status(400).json({ error: "Not enough stock" });
 
-    medicine.quantity -= parseInt(quantity);
+    medicine.quantity -= qty;
 
     patient.medicines.push({
         id: Date.now().toString(),
+        medicineId,
         medicineName: medicine.name,
-        quantity,
-        dosage
+        quantity: qty,
+        dosage,
     });
 
     writeData(data);
-    res.json({ message: "Assigned" });
+    res.json({ message: "Medicine assigned successfully" });
 });
 
+// Remove Assigned Medicine + Restore Stock
 app.delete("/api/assign-medicine/:patientId/:assignmentId", (req, res) => {
     const data = readData();
     const { patientId, assignmentId } = req.params;
 
     const patient = data.patients.find(p => p.id === patientId);
-    if (!patient) return res.status(404).json({ error: "Not found" });
+    if (!patient)
+        return res.status(404).json({ error: "Patient not found" });
 
-    patient.medicines = patient.medicines.filter(m => m.id !== assignmentId);
-    writeData(data);
-    res.json({ message: "Removed" });
-});
+    const assignment = patient.medicines.find(m => m.id === assignmentId);
+    if (!assignment)
+        return res.status(404).json({ error: "Assignment not found" });
 
-/* ================= BILLING ================= */
+    // Restore stock
+    const medicine = data.medicines.find(m => m.id === assignment.medicineId);
+    if (medicine) {
+        medicine.quantity += assignment.quantity;
+    }
 
-app.post("/api/bill", (req, res) => {
-    const data = readData();
-    const { patientId, items } = req.body;
-
-    let totalAmount = 0;
-
-    items.forEach(item => {
-        const medicine = data.medicines.find(m => m.id === item.medicineId);
-        if (!medicine) return;
-
-        const price = medicine.finalPrice || medicine.price;
-        totalAmount += price * item.quantity;
-        medicine.quantity -= item.quantity;
-    });
-
-    data.sales.push({
-        id: Date.now().toString(),
-        patientId,
-        totalAmount,
-        date: new Date().toISOString().split("T")[0]
-    });
+    patient.medicines = patient.medicines.filter(
+        m => m.id !== assignmentId
+    );
 
     writeData(data);
-    res.json({ totalAmount });
-});
-
-/* ================= DASHBOARD ================= */
-
-app.get("/api/dashboard", (req, res) => {
-    const data = readData();
-    const today = new Date().toISOString().split("T")[0];
-
-    const todayRevenue = data.sales
-        .filter(s => s.date === today)
-        .reduce((sum, s) => sum + s.totalAmount, 0);
-
-    const lowStock = data.medicines.filter(m => m.quantity <= 10);
-
-    res.json({
-        totalMedicines: data.medicines.length,
-        totalPatients: data.patients.length,
-        todayRevenue,
-        lowStockCount: lowStock.length
-    });
+    res.json({ message: "Assignment removed and stock restored" });
 });
 
 const PORT = 5000;
 app.listen(PORT, () =>
-    console.log("Server running on http://localhost:5000")
+    console.log("🚀 Server running on http://localhost:5000")
 );
