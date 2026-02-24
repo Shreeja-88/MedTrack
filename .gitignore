@@ -28,7 +28,3 @@ Thumbs.db
 .idea/
 
 # ======================
-# Optional: Ignore Local Database
-# (Only if you don't want to push data.json)
-# ======================
-# data.json
