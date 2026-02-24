@@ -326,5 +326,12 @@ async function confirmAssignMedicine() {
 
 /* ================= INIT ================= */
 
-loadMedicines();
-loadPatients();
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("medicineList")) {
+        loadMedicines();
+    }
+
+    if (document.getElementById("patientList")) {
+        loadPatients();
+    }
+});
