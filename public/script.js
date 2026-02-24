@@ -40,73 +40,111 @@ async function addMedicine() {
 }
 
 async function loadMedicines() {
-    const res = await fetch(`${API}/medicines`);
-    const data = await res.json();
-    allMedicines = data;
+    try {
+        const res = await fetch(`${API}/medicines`);
+        const data = await res.json();
+        allMedicines = data;
 
-    const list = document.getElementById("medicineList");
-    if (!list) return;
+        const list = document.getElementById("medicineList");
+        if (!list) return;
 
-    if (data.length === 0) {
-        list.innerHTML = "<p style='text-align:center;color:#888'>No medicines available</p>";
-        return;
-    }
+        if (!data || data.length === 0) {
+            list.innerHTML =
+                `<p style="text-align:center;color:#888;padding:30px;">
+                    No medicines available
+                </p>`;
+            return;
+        }
 
-    list.innerHTML = "";
+        list.innerHTML = "";
 
-    data.forEach(m => {
-        const expiryDate = new Date(m.expiry);
         const today = new Date();
 
-        const diffDays = (expiryDate - today) / (1000 * 60 * 60 * 24);
-        let badge = "";
+        data.forEach(m => {
+            const expiryDate = new Date(m.expiry);
+            const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
 
-        if (expiryDate < today) {
-            badge = `<span style="color:#ff0080;font-weight:bold">EXPIRED</span>`;
-        } else if (diffDays <= 7) {
-            badge = `<span style="color:#ff9500;font-weight:bold">Expiring Soon</span>`;
-        }
+            let badge = "";
+            let stockWarning = "";
 
-        let stockWarning = "";
-        if (m.quantity <= 5) {
-            stockWarning = `<div style="color:red;font-weight:bold;">Low Stock!</div>`;
-        }
+            // Expiry status
+            if (expiryDate < today) {
+                badge = `<span class="badge badge-danger">Expired</span>`;
+            } else if (diffDays <= 7) {
+                badge = `<span class="badge badge-warning">Expiring Soon</span>`;
+            }
 
-        list.innerHTML += `
-            <div class="card">
-                <div class="card-title">${m.name}</div>
-                <div class="card-info">
-                    <strong>Quantity:</strong> ${m.quantity} units<br>
-                    <strong>Expiry:</strong> ${m.expiry}<br>
-                    ${m.batch ? `<strong>Batch:</strong> ${m.batch}<br>` : ""}
-                    ${m.price ? `<strong>Price:</strong> ₹${m.price}<br>` : ""}
-                    ${m.discount ? `<strong>Discount:</strong> ${m.discount}%<br>` : ""}
-                    ${m.finalPrice ? `<strong>Final Price:</strong> ₹${m.finalPrice}<br>` : ""}
-                    ${badge}
-                    ${stockWarning}
+            // Low stock
+            if (m.quantity <= 5) {
+                stockWarning = `<span class="badge badge-low">Low Stock</span>`;
+            }
+
+            // Price formatting
+            const price = m.price ? `₹${Number(m.price).toFixed(2)}` : "-";
+            const discount = m.discount ? `${m.discount}%` : "-";
+            const finalPrice = m.finalPrice ? `₹${Number(m.finalPrice).toFixed(2)}` : "-";
+
+            list.innerHTML += `
+                <div class="card">
+                    <div class="card-title">${m.name}</div>
+
+                    <div class="card-info">
+                        <div><strong>Quantity:</strong> ${m.quantity}</div>
+                        <div><strong>Expiry:</strong> ${m.expiry}</div>
+                        ${m.batch ? `<div><strong>Batch:</strong> ${m.batch}</div>` : ""}
+                        <div><strong>Price:</strong> ${price}</div>
+                        <div><strong>Discount:</strong> ${discount}</div>
+                        <div><strong>Final Price:</strong> ${finalPrice}</div>
+
+                        <div style="margin-top:8px;">
+                            ${badge}
+                            ${stockWarning}
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn-edit"
+                            onclick="openEditModal(
+                                '${m.id}',
+                                '${m.name}',
+                                '${m.expiry}',
+                                ${m.quantity},
+                                '${m.batch || ''}',
+                                ${m.price || 0},
+                                ${m.discount || 0}
+                            )">
+                            Edit
+                        </button>
+
+                        <button class="btn-reduce"
+                            onclick="openReduceStockModal('${m.id}','${m.name}')">
+                            Reduce
+                        </button>
+
+                        <button class="btn-delete"
+                            onclick="deleteMedicine('${m.id}')">
+                            Delete
+                        </button>
+                    </div>
                 </div>
-                <div class="card-actions">
-                    <button class="btn-edit" onclick="openEditModal('${m.id}','${m.name}','${m.expiry}',${m.quantity},'${m.batch || ''}')">Edit</button>
-                    <button class="btn-reduce" onclick="openReduceStockModal('${m.id}','${m.name}')">Reduce</button>
-                    <button class="btn-delete" onclick="deleteMedicine('${m.id}')">Delete</button>
-                </div>
-            </div>
-        `;
-    });
+            `;
+        });
+
+    } catch (error) {
+        console.error("Error loading medicines:", error);
+    }
 }
 
-async function deleteMedicine(id) {
-    if (!confirm("Delete this medicine?")) return;
-    await fetch(`${API}/medicines/${id}`, { method: "DELETE" });
-    loadMedicines();
-}
-
-function openEditModal(id, name, expiry, quantity, batch) {
+function openEditModal(id, name, expiry, quantity, batch, price = 0, discount = 0) {
     currentEditId = id;
+
     document.getElementById("editName").value = name;
     document.getElementById("editExpiry").value = expiry;
     document.getElementById("editQuantity").value = quantity;
-    document.getElementById("editBatch").value = batch;
+    document.getElementById("editBatch").value = batch || "";
+    document.getElementById("editPrice").value = price || 0;
+    document.getElementById("editDiscount").value = discount || 0;
+
     document.getElementById("editModal").classList.add("active");
 }
 
@@ -137,12 +175,24 @@ function openReduceStockModal(id, name) {
 }
 
 async function confirmReduceStock() {
-    const qty = document.getElementById("reduceAmount").value;
-    await fetch(`${API}/reduce-stock/${currentReduceStockId}`, {
+    const amount = parseInt(document.getElementById("reduceAmount").value);
+
+    if (!amount || amount <= 0) {
+        alert("Please enter a valid quantity.");
+        return;
+    }
+
+    const res = await fetch(`${API}/reduce-stock/${currentReduceStockId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantity: qty })
+        body: JSON.stringify({ quantity: amount })
     });
+
+    if (!res.ok) {
+        const error = await res.json();
+        alert(error.error || "Stock reduction failed");
+        return;
+    }
 
     document.getElementById("reduceStockModal").classList.remove("active");
     loadMedicines();

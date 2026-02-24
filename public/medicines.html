@@ -81,22 +81,31 @@
     <div class="modal">
         <button class="close-btn" onclick="closeReduceStockModal()">×</button>
 
-        <h2>Reduce Stock</h2>
-        <p id="reduceStockMedicineName"></p>
+        <h2>📦 Reduce Medicine Stock</h2>
 
-        <div class="form-row">
+        <div class="form-section">
+            <p id="reduceStockMedicineName"
+               style="font-weight:600;color:#001f3f;margin-bottom:10px;">
+            </p>
+
+            <label style="font-size:0.9rem;font-weight:600;">
+                Enter quantity to reduce:
+            </label>
+
             <input type="number"
                    id="reduceAmount"
-                   placeholder="Amount to reduce"
-                   min="1">
+                   placeholder="Enter quantity"
+                   min="1"
+                   required>
         </div>
 
         <div class="modal-actions">
             <button onclick="closeReduceStockModal()" style="background:#888;">
                 Cancel
             </button>
+
             <button onclick="confirmReduceStock()" class="btn-reduce">
-                Reduce Stock
+                Confirm Reduction
             </button>
         </div>
     </div>
