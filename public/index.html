@@ -86,26 +86,31 @@
     </div>
 </div>
 
-<script src="script.js"></script>
-
 <script>
-async function loadDashboard() {
-    const res = await fetch('/api/dashboard');
-    const data = await res.json();
+/* ================= DASHBOARD ================= */
 
-    document.getElementById('totalMedicines').textContent = data.totalMedicines;
-    document.getElementById('totalPatients').textContent = data.totalPatients;
-    document.getElementById('lowStockCount').textContent = data.lowStockCount;
-    document.getElementById('todayRevenue').textContent = "₹" + data.todayRevenue;
+async function loadDashboard() {
+    try {
+        const res = await fetch('/api/dashboard');
+        const data = await res.json();
+
+        document.getElementById('totalMedicines').textContent = data.totalMedicines || 0;
+        document.getElementById('totalPatients').textContent = data.totalPatients || 0;
+        document.getElementById('lowStockCount').textContent = data.lowStockCount || 0;
+        document.getElementById('todayRevenue').textContent = "₹" + (data.todayRevenue || 0);
+
+    } catch (err) {
+        console.error("Dashboard error:", err);
+    }
 }
 
-setInterval(loadDashboard, 3000);
-loadDashboard();
+/* ================= ALERTS ================= */
 
 async function loadAlerts() {
     try {
-        const res = await fetch('/api/medicines');
-        const medicines = await res.json();
+        // LOW STOCK
+        const medRes = await fetch('/api/medicines');
+        const medicines = await medRes.json();
 
         const lowStock = medicines.filter(m => m.quantity <= 10);
         const lowStockList = document.getElementById("lowStockList");
@@ -120,12 +125,41 @@ async function loadAlerts() {
             ).join("");
         }
 
+        // RECHECK TODAY
+        const patientRes = await fetch('/api/patients');
+        const patients = await patientRes.json();
+
+        const today = new Date().toISOString().split("T")[0];
+        const recheckList = document.getElementById("recheckList");
+
+        const todayRechecks = patients.filter(p => p.nextRecheck === today);
+
+        if (todayRechecks.length === 0) {
+            recheckList.innerHTML =
+                "<p style='color:#888;'>No patients for recheck today</p>";
+        } else {
+            recheckList.innerHTML = todayRechecks.map(p =>
+                `<div class="alert-item">
+                    ${p.name} - Recheck Today
+                </div>`
+            ).join("");
+        }
+
     } catch (err) {
         console.error("Alert error:", err);
     }
 }
 
-loadDashboard();
+/* ================= AUTO REFRESH ================= */
+
+function refreshDashboard() {
+    loadDashboard();
+    loadAlerts();
+}
+
+setInterval(refreshDashboard, 5000);
+refreshDashboard();
+
 </script>
 
 </body>
