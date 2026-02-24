@@ -69,6 +69,11 @@
             <input type="text" id="editBatch" placeholder="Batch Number">
         </div>
 
+        <div class="form-row">
+            <input type="number" id="editPrice" placeholder="Price ₹" min="0" step="0.01">
+            <input type="number" id="editDiscount" placeholder="Discount %" min="0" max="100">
+        </div>
+
         <div class="modal-actions">
             <button onclick="closeModal()" style="background:#888;">Cancel</button>
             <button onclick="updateMedicine()">Save Changes</button>

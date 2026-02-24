@@ -1,5 +1,33 @@
 {
-  "medicines": [],
-  "patients": [],
+  "medicines": [
+    {
+      "id": "1771956507336",
+      "name": "Paracetamol",
+      "expiry": "2026-12-31",
+      "quantity": 7,
+      "batch": "B1",
+      "price": 50,
+      "discount": 10,
+      "finalPrice": 45
+    }
+  ],
+  "patients": [
+    {
+      "id": "1771956596138",
+      "name": "John Doe",
+      "age": 30,
+      "gender": "M",
+      "disease": "Fever",
+      "medicines": [
+        {
+          "id": "1771956610280",
+          "medicineId": "1771956507336",
+          "medicineName": "Paracetamol",
+          "quantity": 2,
+          "dosage": "1x daily"
+        }
+      ]
+    }
+  ],
   "sales": []
 }
