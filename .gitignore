@@ -1,0 +1,34 @@
+# ======================
+# Node Modules
+# ======================
+node_modules/
+
+# ======================
+# Environment Variables
+# ======================
+.env
+
+# ======================
+# Logs
+# ======================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ======================
+# OS Generated Files
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# IDE / Editor Files
+# ======================
+.vscode/
+.idea/
+
+# ======================
+# Optional: Ignore Local Database
+# (Only if you don't want to push data.json)
+# ======================
+# data.json

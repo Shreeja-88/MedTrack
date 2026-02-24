@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Medicines</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <div class="container-box">
+        <h2>💊 Manage Medicines</h2>
+        
+        <div class="form-section">
+            <h3>Add New Medicine</h3>
+            <div class="form-row">
+                <input type="text" id="name" placeholder="Medicine Name" required>
+                <input type="date" id="expiry" required>
+            </div>
+            <div class="form-row">
+                <input type="number" id="quantity" placeholder="Quantity" min="1" required>
+                <input type="text" id="batch" placeholder="Batch Number (optional)">
+            </div>
+            <button onclick="addMedicine()">+ Add Medicine</button>
+        </div>
+
+        <h3>📋 Medicine Inventory</h3>
+        <div class="search-container">
+            <input type="text" id="medicineSearch" placeholder="🔍 Search medicines..." onkeyup="searchMedicines()">
+        </div>
+        <div class="card-list" id="medicineList"></div>
+
+        <a href="index.html">← Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <button class="close-btn" onclick="closeModal()">×</button>
+        <h2>Edit Medicine</h2>
+        <div class="form-row">
+            <input type="text" id="editName" placeholder="Medicine Name">
+            <input type="date" id="editExpiry">
+        </div>
+        <div class="form-row">
+            <input type="number" id="editQuantity" placeholder="Quantity" min="1">
+            <input type="text" id="editBatch" placeholder="Batch Number">
+        </div>
+        <div class="modal-actions">
+            <button onclick="closeModal()" style="background: linear-gradient(135deg, #999 0%, #666 100%);">Cancel</button>
+            <button onclick="updateMedicine()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Reduce Stock Modal -->
+<div class="modal-overlay" id="reduceStockModal">
+    <div class="modal">
+        <button class="close-btn" onclick="closeReduceStockModal()">×</button>
+        <h2>Reduce Stock</h2>
+        <p id="reduceStockMedicineName"></p>
+        <div class="form-row">
+            <input type="number" id="reduceAmount" placeholder="Amount to reduce" min="1">
+        </div>
+        <div class="modal-actions">
+            <button onclick="closeReduceStockModal()" style="background: linear-gradient(135deg, #999 0%, #666 100%);">Cancel</button>
+            <button onclick="confirmReduceStock()" class="btn-reduce">Reduce Stock</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
