@@ -210,6 +210,66 @@ async function deletePatient(id) {
     await fetch(`${API}/patients/${id}`, { method: "DELETE" });
     loadPatients();
 }
+/* ================= ASSIGN MEDICINE ================= */
+
+async function openAssignMedicineModal(patientId, patientName) {
+    currentPatientId = patientId;
+
+    document.getElementById("assignPatientName").innerText =
+        `Patient: ${patientName}`;
+
+    document.getElementById("medicineQuantity").value = "";
+    document.getElementById("dosage").value = "";
+
+    const res = await fetch(`${API}/medicines`);
+    const medicines = await res.json();
+
+    const select = document.getElementById("medicineSelect");
+    select.innerHTML = `<option value="">Select Medicine</option>`;
+
+    medicines.forEach(m => {
+        if (m.quantity > 0) {
+            select.innerHTML += `
+                <option value="${m.id}">
+                    ${m.name} (${m.quantity} available)
+                </option>
+            `;
+        }
+    });
+
+    document
+        .getElementById("assignMedicineModal")
+        .classList.add("active");
+}
+
+async function confirmAssignMedicine() {
+    const medicineId = document.getElementById("medicineSelect").value;
+    const quantity = document.getElementById("medicineQuantity").value;
+    const dosage = document.getElementById("dosage").value;
+
+    if (!medicineId || !quantity || !dosage) {
+        alert("Fill all fields");
+        return;
+    }
+
+    await fetch(`${API}/assign-medicine`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            patientId: currentPatientId,
+            medicineId,
+            quantity,
+            dosage
+        })
+    });
+
+    document
+        .getElementById("assignMedicineModal")
+        .classList.remove("active");
+
+    loadPatients();
+    loadMedicines();
+}
 
 /* ======================= INIT ======================= */
 
