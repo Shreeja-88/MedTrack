@@ -242,25 +242,30 @@ app.post("/api/bill", (req, res) => {
 
 app.get("/api/dashboard", (req, res) => {
     const data = readData();
+
+    const totalMedicines = data.medicines.length;
+    const totalPatients = data.patients.length;
+
+    const lowStockCount = data.medicines.filter(m => m.quantity <= 5).length;
+
     const today = new Date().toISOString().split("T")[0];
 
-    const todayRevenue = data.sales
-        .filter(s => s.date === today)
-        .reduce((sum, s) => sum + s.totalAmount, 0);
-
-    const lowStock = data.medicines.filter(m => m.quantity <= 5);
-
-    const recheckToday = data.patients.filter(
-        p => p.nextRecheck === today
-    );
+    const todayRevenue = data.patients.reduce((sum, p) => {
+        if (!p.medicines) return sum;
+        p.medicines.forEach(m => {
+            const med = data.medicines.find(x => x.id === m.medicineId);
+            if (med) {
+                sum += (med.finalPrice || 0) * m.quantity;
+            }
+        });
+        return sum;
+    }, 0);
 
     res.json({
-        totalMedicines: data.medicines.length,
-        totalPatients: data.patients.length,
-        todayRevenue,
-        lowStockCount: lowStock.length,
-        lowStockItems: lowStock,
-        recheckToday
+        totalMedicines,
+        totalPatients,
+        lowStockCount,
+        todayRevenue
     });
 });
 

@@ -22,7 +22,7 @@ async function addMedicine() {
         return;
     }
 
-    await fetch(`${API}/medicines`, {
+    const res = await fetch(`${API}/medicines`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -35,105 +35,102 @@ async function addMedicine() {
         })
     });
 
+    if (!res.ok) {
+        alert("Failed to add medicine");
+        return;
+    }
+
     document.querySelectorAll(".form-section input").forEach(i => i.value = "");
     loadMedicines();
 }
 
+/* ================= LOAD MEDICINES ================= */
+
 async function loadMedicines() {
-    try {
-        const res = await fetch(`${API}/medicines`);
-        const data = await res.json();
-        allMedicines = data;
+    const res = await fetch(`${API}/medicines`);
+    const data = await res.json();
+    allMedicines = data;
 
-        const list = document.getElementById("medicineList");
-        if (!list) return;
+    const list = document.getElementById("medicineList");
+    if (!list) return;
 
-        if (!data || data.length === 0) {
-            list.innerHTML =
-                `<p style="text-align:center;color:#888;padding:30px;">
-                    No medicines available
-                </p>`;
-            return;
+    if (!data || data.length === 0) {
+        list.innerHTML =
+            `<p style="text-align:center;color:#888;padding:30px;">
+                No medicines available
+            </p>`;
+        return;
+    }
+
+    list.innerHTML = "";
+
+    const today = new Date();
+
+    data.forEach(m => {
+        const expiryDate = new Date(m.expiry);
+        const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+        let badge = "";
+        let stockWarning = "";
+
+        if (expiryDate < today) {
+            badge = `<span class="badge badge-danger">Expired</span>`;
+        } else if (diffDays <= 7) {
+            badge = `<span class="badge badge-warning">Expiring Soon</span>`;
         }
 
-        list.innerHTML = "";
+        if (m.quantity <= 5) {
+            stockWarning = `<span class="badge badge-low">Low Stock</span>`;
+        }
 
-        const today = new Date();
+        list.innerHTML += `
+            <div class="card">
+                <div class="card-title">${m.name}</div>
 
-        data.forEach(m => {
-            const expiryDate = new Date(m.expiry);
-            const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                <div class="card-info">
+                    <div><strong>Quantity:</strong> ${m.quantity}</div>
+                    <div><strong>Expiry:</strong> ${m.expiry}</div>
+                    ${m.batch ? `<div><strong>Batch:</strong> ${m.batch}</div>` : ""}
+                    <div><strong>Price:</strong> ₹${m.price || 0}</div>
+                    <div><strong>Discount:</strong> ${m.discount || 0}%</div>
+                    <div><strong>Final Price:</strong> ₹${m.finalPrice || 0}</div>
 
-            let badge = "";
-            let stockWarning = "";
-
-            // Expiry status
-            if (expiryDate < today) {
-                badge = `<span class="badge badge-danger">Expired</span>`;
-            } else if (diffDays <= 7) {
-                badge = `<span class="badge badge-warning">Expiring Soon</span>`;
-            }
-
-            // Low stock
-            if (m.quantity <= 5) {
-                stockWarning = `<span class="badge badge-low">Low Stock</span>`;
-            }
-
-            // Price formatting
-            const price = m.price ? `₹${Number(m.price).toFixed(2)}` : "-";
-            const discount = m.discount ? `${m.discount}%` : "-";
-            const finalPrice = m.finalPrice ? `₹${Number(m.finalPrice).toFixed(2)}` : "-";
-
-            list.innerHTML += `
-                <div class="card">
-                    <div class="card-title">${m.name}</div>
-
-                    <div class="card-info">
-                        <div><strong>Quantity:</strong> ${m.quantity}</div>
-                        <div><strong>Expiry:</strong> ${m.expiry}</div>
-                        ${m.batch ? `<div><strong>Batch:</strong> ${m.batch}</div>` : ""}
-                        <div><strong>Price:</strong> ${price}</div>
-                        <div><strong>Discount:</strong> ${discount}</div>
-                        <div><strong>Final Price:</strong> ${finalPrice}</div>
-
-                        <div style="margin-top:8px;">
-                            ${badge}
-                            ${stockWarning}
-                        </div>
-                    </div>
-
-                    <div class="card-actions">
-                        <button class="btn-edit"
-                            onclick="openEditModal(
-                                '${m.id}',
-                                '${m.name}',
-                                '${m.expiry}',
-                                ${m.quantity},
-                                '${m.batch || ''}',
-                                ${m.price || 0},
-                                ${m.discount || 0}
-                            )">
-                            Edit
-                        </button>
-
-                        <button class="btn-reduce"
-                            onclick="openReduceStockModal('${m.id}','${m.name}')">
-                            Reduce
-                        </button>
-
-                        <button class="btn-delete"
-                            onclick="deleteMedicine('${m.id}')">
-                            Delete
-                        </button>
+                    <div style="margin-top:8px;">
+                        ${badge}
+                        ${stockWarning}
                     </div>
                 </div>
-            `;
-        });
 
-    } catch (error) {
-        console.error("Error loading medicines:", error);
-    }
+                <div class="card-actions">
+                    <button class="btn-edit"
+                        onclick="openEditModal(
+                            '${m.id}',
+                            '${m.name}',
+                            '${m.expiry}',
+                            ${m.quantity},
+                            '${m.batch || ''}',
+                            ${m.price || 0},
+                            ${m.discount || 0}
+                        )">
+                        Edit
+                    </button>
+
+                    <button class="btn-reduce"
+                        onclick="openReduceStockModal('${m.id}','${m.name}')">
+                        Reduce
+                    </button>
+
+                    <button class="btn-delete"
+                        onclick="deleteMedicine('${m.id}')">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    });
 }
+
+/* ================= EDIT ================= */
 
 function openEditModal(id, name, expiry, quantity, batch, price = 0, discount = 0) {
     currentEditId = id;
@@ -142,8 +139,8 @@ function openEditModal(id, name, expiry, quantity, batch, price = 0, discount = 
     document.getElementById("editExpiry").value = expiry;
     document.getElementById("editQuantity").value = quantity;
     document.getElementById("editBatch").value = batch || "";
-    document.getElementById("editPrice").value = price || 0;
-    document.getElementById("editDiscount").value = discount || 0;
+    document.getElementById("editPrice").value = price;
+    document.getElementById("editDiscount").value = discount;
 
     document.getElementById("editModal").classList.add("active");
 }
@@ -153,12 +150,26 @@ async function updateMedicine() {
     const expiry = document.getElementById("editExpiry").value;
     const quantity = document.getElementById("editQuantity").value;
     const batch = document.getElementById("editBatch").value.trim();
+    const price = document.getElementById("editPrice").value;
+    const discount = document.getElementById("editDiscount").value;
 
-    await fetch(`${API}/medicines/${currentEditId}`, {
+    const res = await fetch(`${API}/medicines/${currentEditId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, expiry, quantity, batch })
+        body: JSON.stringify({
+            name,
+            expiry,
+            quantity,
+            batch,
+            price,
+            discount
+        })
     });
+
+    if (!res.ok) {
+        alert("Update failed");
+        return;
+    }
 
     closeModal();
     loadMedicines();
@@ -167,6 +178,23 @@ async function updateMedicine() {
 function closeModal() {
     document.getElementById("editModal").classList.remove("active");
 }
+
+/* ================= DELETE ================= */
+
+async function deleteMedicine(id) {
+    if (!confirm("Delete this medicine?")) return;
+
+    const res = await fetch(`${API}/medicines/${id}`, { method: "DELETE" });
+
+    if (!res.ok) {
+        alert("Delete failed");
+        return;
+    }
+
+    loadMedicines();
+}
+
+/* ================= REDUCE STOCK ================= */
 
 function openReduceStockModal(id, name) {
     currentReduceStockId = id;
@@ -178,7 +206,7 @@ async function confirmReduceStock() {
     const amount = parseInt(document.getElementById("reduceAmount").value);
 
     if (!amount || amount <= 0) {
-        alert("Please enter a valid quantity.");
+        alert("Enter valid quantity");
         return;
     }
 
@@ -198,28 +226,7 @@ async function confirmReduceStock() {
     loadMedicines();
 }
 
-/* ======================= PATIENTS ======================= */
-
-async function addPatient() {
-    const name = document.getElementById("pname").value.trim();
-    const age = document.getElementById("age").value;
-    const gender = document.getElementById("gender").value.trim();
-    const disease = document.getElementById("disease").value.trim();
-
-    if (!name || !age || !gender || !disease) {
-        alert("Fill all fields");
-        return;
-    }
-
-    await fetch(`${API}/patients`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, age, gender, disease })
-    });
-
-    document.querySelectorAll(".form-section input").forEach(i => i.value = "");
-    loadPatients();
-}
+/* ================= PATIENTS ================= */
 
 async function loadPatients() {
     const res = await fetch(`${API}/patients`);
@@ -228,11 +235,6 @@ async function loadPatients() {
 
     const list = document.getElementById("patientList");
     if (!list) return;
-
-    if (data.length === 0) {
-        list.innerHTML = "<p style='text-align:center;color:#888'>No patients found</p>";
-        return;
-    }
 
     list.innerHTML = "";
 
@@ -247,29 +249,28 @@ async function loadPatients() {
                     Medicines: ${p.medicines?.length || 0}
                 </div>
                 <div class="card-actions">
-                    <button class="btn-assign" onclick="openAssignMedicineModal('${p.id}','${p.name}')">Assign</button>
-                    <button class="btn-delete" onclick="deletePatient('${p.id}')">Delete</button>
+                    <button class="btn-assign"
+                        onclick="openAssignMedicineModal('${p.id}','${p.name}')">
+                        Assign
+                    </button>
+
+                    <button class="btn-delete"
+                        onclick="deletePatient('${p.id}')">
+                        Delete
+                    </button>
                 </div>
             </div>
         `;
     });
 }
 
-async function deletePatient(id) {
-    if (!confirm("Delete patient?")) return;
-    await fetch(`${API}/patients/${id}`, { method: "DELETE" });
-    loadPatients();
-}
-/* ================= ASSIGN MEDICINE ================= */
+/* ================= ASSIGN ================= */
 
 async function openAssignMedicineModal(patientId, patientName) {
     currentPatientId = patientId;
 
     document.getElementById("assignPatientName").innerText =
         `Patient: ${patientName}`;
-
-    document.getElementById("medicineQuantity").value = "";
-    document.getElementById("dosage").value = "";
 
     const res = await fetch(`${API}/medicines`);
     const medicines = await res.json();
@@ -287,9 +288,7 @@ async function openAssignMedicineModal(patientId, patientName) {
         }
     });
 
-    document
-        .getElementById("assignMedicineModal")
-        .classList.add("active");
+    document.getElementById("assignMedicineModal").classList.add("active");
 }
 
 async function confirmAssignMedicine() {
@@ -302,7 +301,7 @@ async function confirmAssignMedicine() {
         return;
     }
 
-    await fetch(`${API}/assign-medicine`, {
+    const res = await fetch(`${API}/assign-medicine`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -313,15 +312,19 @@ async function confirmAssignMedicine() {
         })
     });
 
-    document
-        .getElementById("assignMedicineModal")
-        .classList.remove("active");
+    if (!res.ok) {
+        const error = await res.json();
+        alert(error.error || "Assignment failed");
+        return;
+    }
+
+    document.getElementById("assignMedicineModal").classList.remove("active");
 
     loadPatients();
     loadMedicines();
 }
 
-/* ======================= INIT ======================= */
+/* ================= INIT ================= */
 
 loadMedicines();
 loadPatients();

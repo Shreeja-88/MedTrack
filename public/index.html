@@ -90,21 +90,17 @@
 
 <script>
 async function loadDashboard() {
-    try {
-        const res = await fetch('/api/dashboard');
-        const data = await res.json();
+    const res = await fetch('/api/dashboard');
+    const data = await res.json();
 
-        document.getElementById('totalMedicines').textContent = data.totalMedicines;
-        document.getElementById('totalPatients').textContent = data.totalPatients;
-        document.getElementById('todayRevenue').textContent = "₹" + data.todayRevenue;
-        document.getElementById('lowStockCount').textContent = data.lowStockCount;
-
-        loadAlerts();
-
-    } catch (err) {
-        console.error("Dashboard error:", err);
-    }
+    document.getElementById('totalMedicines').textContent = data.totalMedicines;
+    document.getElementById('totalPatients').textContent = data.totalPatients;
+    document.getElementById('lowStockCount').textContent = data.lowStockCount;
+    document.getElementById('todayRevenue').textContent = "₹" + data.todayRevenue;
 }
+
+setInterval(loadDashboard, 3000);
+loadDashboard();
 
 async function loadAlerts() {
     try {
