@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Medicines</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -13,106 +12,37 @@
 
         <h2>💊 Manage Medicines</h2>
 
-        <!-- ADD MEDICINE -->
         <div class="form-section">
             <h3>Add New Medicine</h3>
 
             <div class="form-row">
-                <input type="text" id="name" placeholder="Medicine Name" required>
-                <input type="date" id="expiry" required>
+                <input type="text" id="name" placeholder="Medicine Name">
+                <input type="date" id="expiry">
             </div>
 
             <div class="form-row">
-                <input type="number" id="quantity" placeholder="Quantity" min="1" required>
-                <input type="text" id="batch" placeholder="Batch Number (optional)">
+                <input type="number" id="quantity" placeholder="Quantity">
+                <input type="text" id="batch" placeholder="Batch">
             </div>
 
             <div class="form-row">
-                <input type="number" id="price" placeholder="Price ₹" min="0" step="0.01">
-                <input type="number" id="discount" placeholder="Discount %" min="0" max="100">
+                <input type="number" id="price" placeholder="Price">
+                <input type="number" id="discount" placeholder="Discount">
             </div>
 
-            <button onclick="addMedicine()">+ Add Medicine</button>
+            <button type="button" onclick="addMedicine()">+ Add Medicine</button>
         </div>
 
-        <!-- INVENTORY -->
         <h3>📋 Medicine Inventory</h3>
-
-        <div class="search-container">
-            <input type="text"
-                   id="medicineSearch"
-                   placeholder="🔍 Search medicines..."
-                   onkeyup="searchMedicines()">
-        </div>
-
         <div class="card-list" id="medicineList"></div>
 
-        <a href="index.html">← Back to Dashboard</a>
+        <a href="index.html">← Back</a>
 
-    </div>
-</div>
-
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="editModal">
-    <div class="modal">
-        <button class="close-btn" onclick="closeModal()">×</button>
-
-        <h2>Edit Medicine</h2>
-
-        <div class="form-row">
-            <input type="text" id="editName" placeholder="Medicine Name">
-            <input type="date" id="editExpiry">
+        <!-- Modal overlay (used for edit / assign / reduce) -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal" id="modalContent"></div>
         </div>
 
-        <div class="form-row">
-            <input type="number" id="editQuantity" placeholder="Quantity" min="1">
-            <input type="text" id="editBatch" placeholder="Batch Number">
-        </div>
-
-        <div class="form-row">
-            <input type="number" id="editPrice" placeholder="Price ₹" min="0" step="0.01">
-            <input type="number" id="editDiscount" placeholder="Discount %" min="0" max="100">
-        </div>
-
-        <div class="modal-actions">
-            <button onclick="closeModal()" style="background:#888;">Cancel</button>
-            <button onclick="updateMedicine()">Save Changes</button>
-        </div>
-    </div>
-</div>
-
-<!-- REDUCE STOCK MODAL -->
-<div class="modal-overlay" id="reduceStockModal">
-    <div class="modal">
-        <button class="close-btn" onclick="closeReduceStockModal()">×</button>
-
-        <h2>📦 Reduce Medicine Stock</h2>
-
-        <div class="form-section">
-            <p id="reduceStockMedicineName"
-               style="font-weight:600;color:#001f3f;margin-bottom:10px;">
-            </p>
-
-            <label style="font-size:0.9rem;font-weight:600;">
-                Enter quantity to reduce:
-            </label>
-
-            <input type="number"
-                   id="reduceAmount"
-                   placeholder="Enter quantity"
-                   min="1"
-                   required>
-        </div>
-
-        <div class="modal-actions">
-            <button onclick="closeReduceStockModal()" style="background:#888;">
-                Cancel
-            </button>
-
-            <button onclick="confirmReduceStock()" class="btn-reduce">
-                Confirm Reduction
-            </button>
-        </div>
     </div>
 </div>
 

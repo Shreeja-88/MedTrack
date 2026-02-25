@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Patients</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -13,111 +12,32 @@
 
         <h2>🏥 Manage Patients</h2>
 
-        <!-- ADD PATIENT -->
         <div class="form-section">
             <h3>Add New Patient</h3>
 
             <div class="form-row">
-                <input type="text" id="pname" placeholder="Patient Name" required>
-                <input type="number" id="age" placeholder="Age" min="1" max="150" required>
+                <input type="text" id="pname" placeholder="Patient Name">
+                <input type="number" id="age" placeholder="Age">
             </div>
 
             <div class="form-row">
-                <input type="text" id="gender" placeholder="Gender (M/F/Other)" required>
-                <input type="text" id="disease" placeholder="Disease / Condition" required>
+                <input type="text" id="gender" placeholder="Gender">
+                <input type="text" id="disease" placeholder="Disease">
             </div>
 
-            <button onclick="addPatient()">+ Add Patient</button>
+            <button type="button" onclick="addPatient()">+ Add Patient</button>
         </div>
 
-        <!-- PATIENT LIST -->
         <h3>👥 Patient List</h3>
-
-        <div class="search-container">
-            <input type="text" id="patientSearch"
-                   placeholder="🔍 Search patients..."
-                   onkeyup="searchPatients()">
-        </div>
-
         <div class="card-list" id="patientList"></div>
 
-        <a href="index.html">← Back to Dashboard</a>
+        <a href="index.html">← Back</a>
 
-    </div>
-</div>
-
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="editPatientModal">
-    <div class="modal">
-        <button class="close-btn" onclick="closePatientModal()">×</button>
-
-        <h2>Edit Patient</h2>
-
-        <div class="form-row">
-            <input type="text" id="editPname" placeholder="Patient Name">
-            <input type="number" id="editAge" placeholder="Age" min="1" max="150">
+        <!-- Modal overlay (used for patient details / edit) -->
+        <div class="modal-overlay" id="modalOverlayPatients">
+            <div class="modal" id="modalContentPatients"></div>
         </div>
 
-        <div class="form-row">
-            <input type="text" id="editGender" placeholder="Gender">
-            <input type="text" id="editDisease" placeholder="Disease">
-        </div>
-
-        <div class="modal-actions">
-            <button onclick="closePatientModal()" style="background:#888;">Cancel</button>
-            <button onclick="updatePatient()">Save Changes</button>
-        </div>
-    </div>
-</div>
-
-<!-- ASSIGN MEDICINE MODAL -->
-<div class="modal-overlay" id="assignMedicineModal">
-    <div class="modal">
-        <button class="close-btn" onclick="closeAssignMedicineModal()">×</button>
-
-        <h2>Assign Medicine</h2>
-
-        <p id="assignPatientName"
-           style="color:#ff0080; font-weight:bold; margin-bottom:15px;"></p>
-
-        <div class="form-row">
-            <select id="medicineSelect" required>
-                <option value="">Select Medicine</option>
-            </select>
-        </div>
-
-        <div class="form-row">
-            <input type="number" id="medicineQuantity"
-                   placeholder="Quantity" min="1" required>
-            <input type="text" id="dosage"
-                   placeholder="Dosage (e.g., 2x daily)" required>
-        </div>
-
-        <div class="modal-actions">
-            <button onclick="closeAssignMedicineModal()" style="background:#888;">
-                Cancel
-            </button>
-            <button onclick="confirmAssignMedicine()">
-                Assign Medicine
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- VIEW MEDICINES MODAL -->
-<div class="modal-overlay" id="viewMedicinesModal">
-    <div class="modal">
-        <button class="close-btn" onclick="closeViewMedicinesModal()">×</button>
-
-        <h2 id="medicinesModalTitle">Patient Medicines</h2>
-
-        <div id="patientMedicinesList"
-             style="max-height:300px; overflow-y:auto;">
-        </div>
-
-        <div class="modal-actions">
-            <button onclick="closeViewMedicinesModal()">Close</button>
-        </div>
     </div>
 </div>
 
