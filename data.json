@@ -9,6 +9,26 @@
       "price": 50,
       "discount": 10,
       "finalPrice": 45
+    },
+    {
+      "id": "1772085418461",
+      "name": "gg",
+      "expiry": "2026-02-26",
+      "quantity": 23,
+      "batch": "122",
+      "price": 1123,
+      "discount": 2,
+      "finalPrice": 1100.54
+    },
+    {
+      "id": "1772089911799",
+      "name": "dolo",
+      "expiry": "2029-06-02",
+      "quantity": 89,
+      "batch": "A001",
+      "price": 125,
+      "discount": 9,
+      "finalPrice": 113.75
     }
   ],
   "patients": [
@@ -18,6 +38,7 @@
       "age": 30,
       "gender": "M",
       "disease": "Fever",
+      "nextRecheck": null,
       "medicines": [
         {
           "id": "1771956610280",
@@ -27,7 +48,26 @@
           "dosage": "1x daily"
         }
       ]
+    },
+    {
+      "id": "1772030393169",
+      "name": "Test User",
+      "age": 45,
+      "gender": "F",
+      "disease": "Cold",
+      "nextRecheck": null,
+      "medicines": []
+    },
+    {
+      "id": "1772090003758",
+      "name": "gg",
+      "age": 18,
+      "gender": "F",
+      "disease": "general",
+      "nextRecheck": null,
+      "medicines": []
     }
   ],
-  "sales": []
+  "sales": [],
+  "assignments": []
 }

@@ -1,166 +1,214 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedTrack Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedTrack | Medical Inventory Management</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-    <div class="container-box">
+<div class="app-container">
 
-        <h2>🏥 MedTrack Dashboard</h2>
-        <p style="text-align:center; margin-bottom:30px; color:#666;">
-            Smart Medical Inventory & Patient Management System
-        </p>
-
-        <!-- SUMMARY CARDS -->
-        <div class="card-list dashboard-grid">
-
-            <div class="card summary-card">
-                <div class="card-title">💊 Total Medicines</div>
-                <div class="dashboard-number" id="totalMedicines">0</div>
-            </div>
-
-            <div class="card summary-card">
-                <div class="card-title">👥 Total Patients</div>
-                <div class="dashboard-number" id="totalPatients">0</div>
-            </div>
-
-            <div class="card summary-card revenue-card">
-                <div class="card-title">💰 Today's Revenue</div>
-                <div class="dashboard-number" id="todayRevenue">₹0</div>
-            </div>
-
-            <div class="card summary-card warning-card">
-                <div class="card-title">⚠ Low Stock Items</div>
-                <div class="dashboard-number" id="lowStockCount">0</div>
-            </div>
-
-        </div>
-
-        <!-- ALERT SECTION -->
-        <div class="alert-section">
-
-            <div class="card alert-card">
-                <div class="card-title">🚨 Low Stock Alert</div>
-                <div id="lowStockList">
-                    <p style="color:#888;">No low stock items</p>
-                </div>
-            </div>
-
-            <div class="card alert-card">
-                <div class="card-title">📅 Recheck Today</div>
-                <div id="recheckList">
-                    <p style="color:#888;">No patients for recheck today</p>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- NAVIGATION -->
-        <div class="card-list" style="margin-top:40px;">
-
-            <div class="card nav-card">
-                <div class="card-title">💊 Manage Medicines</div>
-                <div class="card-actions">
-                    <a href="medicines.html" class="nav-btn">Open Medicines</a>
-                </div>
-            </div>
-
-            <div class="card nav-card">
-                <div class="card-title">🏥 Manage Patients</div>
-                <div class="card-actions">
-                    <a href="patients.html" class="nav-btn">Open Patients</a>
-                </div>
-            </div>
-
-        </div>
-
-        <div style="text-align:center; margin-top:40px; font-size:0.9em; color:#aaa;">
-            © 2026 MedTrack | Built by Prajwal
-        </div>
-
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏥 MedTrack</div>
     </div>
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="#" data-page="dashboard"  onclick="showPage('dashboard');  return false;">📊 Dashboard</a></li>
+      <li class="sidebar-nav-item"><a href="#" data-page="medicines"  onclick="showPage('medicines');  return false;">💊 Medicines</a></li>
+      <li class="sidebar-nav-item"><a href="#" data-page="patients"   onclick="showPage('patients');   return false;">👥 Patients</a></li>
+      <li class="sidebar-nav-item"><a href="#" data-page="sales"      onclick="showPage('sales');      return false;">💰 Sales</a></li>
+      <li class="sidebar-nav-item"><a href="#" data-page="analytics"  onclick="showPage('analytics');  return false;">📈 Analytics</a></li>
+    </ul>
+  </div>
+
+  <!-- HAMBURGER (mobile) -->
+  <button id="hamburgerBtn" class="hamburger-btn" aria-label="Toggle menu">☰</button>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="content-area">
+
+      <!-- ═══════════ DASHBOARD ═══════════ -->
+      <div id="dashboard-page" class="page">
+        <div class="page-header">
+          <h1>📊 Dashboard</h1>
+          <p>Welcome to MedTrack Medical Inventory Management System</p>
+        </div>
+        <div class="card-grid">
+          <div class="card summary-card">
+            <div class="card-title">💊 Total Medicines</div>
+            <div class="card-value" id="totalMedicines">0</div>
+          </div>
+          <div class="card summary-card">
+            <div class="card-title">👥 Total Patients</div>
+            <div class="card-value" id="totalPatients">0</div>
+          </div>
+          <div class="card summary-card">
+            <div class="card-title">💰 Today's Revenue</div>
+            <div class="card-value" id="todayRevenue">₹0</div>
+          </div>
+          <div class="card summary-card">
+            <div class="card-title">⚠️ Low Stock</div>
+            <div class="card-value" id="lowStockCount">0</div>
+          </div>
+        </div>
+        <div style="margin-top:40px">
+          <h3>🚨 Critical Alerts</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+            <div class="card">
+              <div class="card-title">Low Stock Medicines</div>
+              <div id="lowStockList" style="margin-top:15px"><p style="color:#888">No low stock items</p></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Patient Recheck Today</div>
+              <div id="recheckList" style="margin-top:15px"><p style="color:#888">No patients for recheck today</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ MEDICINES ═══════════ -->
+      <div id="medicines-page" class="page hidden">
+        <div class="page-header">
+          <h1>💊 Medicines Management</h1>
+          <p>Manage your medical inventory efficiently</p>
+        </div>
+
+        <div class="form-section">
+          <h3>➕ Add New Medicine</h3>
+          <div class="form-row">
+            <div><label>Medicine Name *</label><input type="text"   id="med_name"     placeholder="e.g. Paracetamol"></div>
+            <div><label>Expiry Date *</label>   <input type="date"  id="med_expiry"></div>
+          </div>
+          <div class="form-row">
+            <div><label>Quantity *</label>       <input type="number" id="med_quantity"  placeholder="e.g. 100"></div>
+            <div><label>Batch Number</label>     <input type="text"   id="med_batch"    placeholder="e.g. B001"></div>
+          </div>
+          <div class="form-row">
+            <div><label>Price (₹)</label>        <input type="number" id="med_price"    placeholder="0.00" step="0.01"></div>
+            <div><label>Discount (%)</label>     <input type="number" id="med_discount" placeholder="0" min="0" max="100"></div>
+          </div>
+          <button onclick="addMedicine()">+ Add Medicine</button>
+        </div>
+
+        <div class="search-bar">
+          <input type="text" id="medicineSearch" placeholder="Search medicines..." oninput="filterMedicines()">
+          <button class="btn-warning"   onclick="filterLowStock()">⚠️ Low Stock</button>
+          <button class="btn-danger"    onclick="filterExpired()">⏰ Expiring Soon</button>
+          <button class="btn-secondary" onclick="loadMedicines()">✖ Clear</button>
+        </div>
+
+        <h3>📋 Medicine Inventory</h3>
+        <div class="card-list" id="medicineList"></div>
+      </div>
+
+      <!-- ═══════════ PATIENTS ═══════════ -->
+      <div id="patients-page" class="page hidden">
+        <div class="page-header">
+          <h1>👥 Patient Management</h1>
+          <p>Manage patient records and prescriptions</p>
+        </div>
+
+        <div class="form-section">
+          <h3>➕ Add New Patient</h3>
+          <div class="form-row">
+            <div><label>Patient Name *</label>      <input type="text"   id="p_name"    placeholder="Full name"></div>
+            <div><label>Age *</label>               <input type="number" id="p_age"     placeholder="Age"></div>
+          </div>
+          <div class="form-row">
+            <div><label>Gender *</label>            <input type="text"   id="p_gender"  placeholder="Male / Female / Other"></div>
+            <div><label>Disease / Condition *</label><input type="text"  id="p_disease" placeholder="e.g. Fever"></div>
+          </div>
+          <div class="form-row">
+            <div><label>Next Recheck Date</label>   <input type="date"   id="p_recheck"></div>
+          </div>
+          <button onclick="addPatient()">+ Add Patient</button>
+        </div>
+
+        <div class="search-bar">
+          <input type="text" id="patientSearch" placeholder="Search patients..." oninput="filterPatients()">
+          <button class="btn-secondary" onclick="loadPatients()">✖ Clear</button>
+        </div>
+
+        <h3>👥 Patient List</h3>
+        <div class="card-list" id="patientList"></div>
+      </div>
+
+      <!-- ═══════════ SALES ═══════════ -->
+      <div id="sales-page" class="page hidden">
+        <div class="page-header">
+          <h1>💰 Sales &amp; Revenue</h1>
+          <p>Track medicine sales and revenue</p>
+        </div>
+        <div class="card-grid">
+          <div class="card summary-card">
+            <div class="card-title">📊 Today's Sales</div>
+            <div class="card-value" id="todaySalesCount">0</div>
+          </div>
+          <div class="card summary-card">
+            <div class="card-title">💵 Today's Revenue</div>
+            <div class="card-value" id="todaySalesRevenue">₹0</div>
+          </div>
+        </div>
+        <h3>📋 Sales History</h3>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Date</th><th>Time</th><th>Medicine</th><th>Qty</th><th>Amount (₹)</th></tr></thead>
+            <tbody id="salesList">
+              <tr><td colspan="5" style="text-align:center;padding:30px;color:#888">No sales recorded yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════ ANALYTICS ═══════════ -->
+      <div id="analytics-page" class="page hidden">
+        <div class="page-header">
+          <h1>📈 Analytics &amp; Reports</h1>
+          <p>Business insights and statistics</p>
+        </div>
+        <div class="card-grid">
+          <div class="card summary-card"><div class="card-title">💰 Total Revenue</div><div class="card-value" id="totalRevenue">₹0</div></div>
+          <div class="card summary-card"><div class="card-title">📦 Total Sales</div><div class="card-value"   id="totalSalesCount">0</div></div>
+          <div class="card summary-card"><div class="card-title">💊 Medicines</div><div class="card-value"     id="analyticsMedicines">0</div></div>
+          <div class="card summary-card"><div class="card-title">👥 Patients</div><div class="card-value"      id="analyticsPatients">0</div></div>
+        </div>
+        <div class="card" style="margin-top:30px">
+          <div class="card-title">🏆 Top Selling Medicine</div>
+          <div id="topMedicineInfo" style="margin-top:16px;padding:16px;background:#f8fafc;border-radius:10px">
+            <p style="color:#888">No sales data yet</p>
+          </div>
+        </div>
+        <h3 style="margin-top:30px">📊 Medicine Sales Breakdown</h3>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Medicine Name</th><th>Qty Sold</th><th>Total Amount (₹)</th></tr></thead>
+            <tbody id="medicineSalesTable">
+              <tr><td colspan="3" style="text-align:center;padding:30px;color:#888">No sales data available</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </div><!-- /main-content -->
+</div><!-- /app-container -->
+
+<!-- ═══════ MODALS — outside everything so they are NEVER hidden ═══════ -->
+
+<!-- Medicine modal -->
+<div class="modal-overlay" id="modalMain">
+  <div class="modal modal-box"></div>
 </div>
 
-<script>
-/* ================= DASHBOARD ================= */
+<!-- Patient modal -->
+<div class="modal-overlay" id="modalPatients">
+  <div class="modal modal-box"></div>
+</div>
 
-async function loadDashboard() {
-    try {
-        const res = await fetch('/api/dashboard');
-        const data = await res.json();
-
-        document.getElementById('totalMedicines').textContent = data.totalMedicines || 0;
-        document.getElementById('totalPatients').textContent = data.totalPatients || 0;
-        document.getElementById('lowStockCount').textContent = data.lowStockCount || 0;
-        document.getElementById('todayRevenue').textContent = "₹" + (data.todayRevenue || 0);
-
-    } catch (err) {
-        console.error("Dashboard error:", err);
-    }
-}
-
-/* ================= ALERTS ================= */
-
-async function loadAlerts() {
-    try {
-        // LOW STOCK
-        const medRes = await fetch('/api/medicines');
-        const medicines = await medRes.json();
-
-        const lowStock = medicines.filter(m => m.quantity <= 10);
-        const lowStockList = document.getElementById("lowStockList");
-
-        if (lowStock.length === 0) {
-            lowStockList.innerHTML = "<p style='color:#888;'>No low stock items</p>";
-        } else {
-            lowStockList.innerHTML = lowStock.map(m =>
-                `<div class="alert-item">
-                    ${m.name} - Only ${m.quantity} left
-                </div>`
-            ).join("");
-        }
-
-        // RECHECK TODAY
-        const patientRes = await fetch('/api/patients');
-        const patients = await patientRes.json();
-
-        const today = new Date().toISOString().split("T")[0];
-        const recheckList = document.getElementById("recheckList");
-
-        const todayRechecks = patients.filter(p => p.nextRecheck === today);
-
-        if (todayRechecks.length === 0) {
-            recheckList.innerHTML =
-                "<p style='color:#888;'>No patients for recheck today</p>";
-        } else {
-            recheckList.innerHTML = todayRechecks.map(p =>
-                `<div class="alert-item">
-                    ${p.name} - Recheck Today
-                </div>`
-            ).join("");
-        }
-
-    } catch (err) {
-        console.error("Alert error:", err);
-    }
-}
-
-/* ================= AUTO REFRESH ================= */
-
-function refreshDashboard() {
-    loadDashboard();
-    loadAlerts();
-}
-
-setInterval(refreshDashboard, 5000);
-refreshDashboard();
-
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>

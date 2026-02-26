@@ -11,7 +11,7 @@ const DATA_FILE = path.join(__dirname, "data.json");
 /* DATABASE */
 function readDB() {
     if (!fs.existsSync(DATA_FILE)) {
-        const initial = { medicines: [], patients: [], sales: [] };
+        const initial = { medicines: [], patients: [], sales: [], assignments: [] };
         fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
         return initial;
     }
@@ -87,12 +87,14 @@ app.post("/api/medicines/:id/reduce", (req, res) => {
     if (!med) return res.status(404).json({ error: "Not found" });
 
     const qty = parseInt(req.body.quantity);
-    if (!qty || med.quantity < qty)
+    if (!qty || qty <= 0)
         return res.status(400).json({ error: "Invalid quantity" });
+    if (med.quantity < qty)
+        return res.status(400).json({ error: `Insufficient stock. Only ${med.quantity} available.` });
 
     med.quantity -= qty;
     writeDB(db);
-    res.json({ message: "Reduced" });
+    res.json({ message: "Reduced", remaining: med.quantity });
 });
 
 /* PATIENTS */
@@ -104,7 +106,7 @@ app.get("/api/patients", (req, res) => {
 
 app.post("/api/patients", (req, res) => {
     const db = readDB();
-    const { name, age, gender, disease } = req.body;
+    const { name, age, gender, disease, nextRecheck } = req.body;
 
     if (!name || !age || !gender || !disease)
         return res.status(400).json({ error: "Missing fields" });
@@ -115,6 +117,7 @@ app.post("/api/patients", (req, res) => {
         age: parseInt(age),
         gender,
         disease,
+        nextRecheck: nextRecheck || null,
         medicines: []
     };
 
@@ -130,6 +133,7 @@ app.put("/api/patients/:id", (req, res) => {
 
     Object.assign(p, req.body);
     p.age = parseInt(p.age);
+    if (!p.nextRecheck) p.nextRecheck = null;
 
     writeDB(db);
     res.json(p);
@@ -180,15 +184,101 @@ app.get("/api/dashboard", (req, res) => {
     const totalMedicines = db.medicines.length;
     const totalPatients = db.patients.length;
     const lowStockCount = db.medicines.filter(m => m.quantity <= 10).length;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const todaySales = db.sales.filter(s => s.date === today);
+    const todayRevenue = todaySales.reduce((sum, s) => sum + s.amount, 0);
 
     res.json({
         totalMedicines,
         totalPatients,
         lowStockCount,
-        todayRevenue: 0
+        todayRevenue
     });
 });
 
+/* SALES */
+
+app.post("/api/sales", (req, res) => {
+    const db = readDB();
+    const { medicineId, medicineName, quantity, amount } = req.body;
+
+    if (!medicineId || !quantity || !amount)
+        return res.status(400).json({ error: "Missing fields" });
+
+    const sale = {
+        id: Date.now().toString(),
+        medicineId,
+        medicineName,
+        quantity: parseInt(quantity),
+        amount: parseFloat(amount),
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toTimeString().split(' ')[0]
+    };
+
+    db.sales.push(sale);
+    writeDB(db);
+    res.json(sale);
+});
+
+app.get("/api/sales", (req, res) => {
+    const db = readDB();
+    res.json(db.sales.reverse());
+});
+
+app.get("/api/sales/daily-revenue", (req, res) => {
+    const db = readDB();
+    const revenueByDate = {};
+
+    db.sales.forEach(s => {
+        if (!revenueByDate[s.date]) revenueByDate[s.date] = 0;
+        revenueByDate[s.date] += s.amount;
+    });
+
+    res.json(revenueByDate);
+});
+
+/* ANALYTICS */
+
+app.get("/api/analytics/summary", (req, res) => {
+    const db = readDB();
+    
+    const totalRevenue = db.sales.reduce((sum, s) => sum + s.amount, 0);
+    const totalSales = db.sales.length;
+    
+    const medicinesSold = {};
+    db.sales.forEach(s => {
+        if (!medicinesSold[s.medicineName]) medicinesSold[s.medicineName] = 0;
+        medicinesSold[s.medicineName] += s.quantity;
+    });
+    
+    const topMedicine = Object.entries(medicinesSold)
+        .sort((a, b) => b[1] - a[1])[0];
+
+    res.json({
+        totalRevenue,
+        totalSales,
+        totalMedicines: db.medicines.length,
+        totalPatients: db.patients.length,
+        topMedicine: topMedicine ? { name: topMedicine[0], quantity: topMedicine[1] } : null
+    });
+});
+
+app.get("/api/analytics/medicine-sales", (req, res) => {
+    const db = readDB();
+    
+    const salesByMedicine = {};
+    db.sales.forEach(s => {
+        if (!salesByMedicine[s.medicineName]) {
+            salesByMedicine[s.medicineName] = { quantity: 0, amount: 0 };
+        }
+        salesByMedicine[s.medicineName].quantity += s.quantity;
+        salesByMedicine[s.medicineName].amount += s.amount;
+    });
+
+    res.json(salesByMedicine);
+});
+
 app.listen(5000, () =>
-    console.log("🚀 Server running at http://localhost:5000")
+    console.log(" Server running at http://localhost:5000")
 );
