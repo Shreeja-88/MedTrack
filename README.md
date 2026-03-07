@@ -1,23 +1,3 @@
-🔥 Prajwal — this is already very good.
-
-Now I’ll give you a **professional GitHub-ready README (UPDATED for your upgraded version)**
-Including:
-
-* Price & Discount
-* Stock alerts
-* Expiry alerts
-* Assignment system
-* Dashboard
-* Revenue
-* Production-ready description
-
-You can directly replace your README.md with this.
-
----
-
-# 🚀 FINAL PROFESSIONAL README
-
-```markdown
 # MedTrack – Smart Medicine & Patient Management System 💊🏥
 
 MedTrack is a full-stack web application built using **Node.js + Express** with local JSON file storage.
@@ -29,7 +9,7 @@ MedTrack is a full-stack web application built using **Node.js + Express** with 
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
 MedTrack is a healthcare inventory and patient management system designed for:
 
@@ -52,7 +32,7 @@ This version uses **local JSON storage**, making it simple to run without databa
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### 🔹 Backend
 - Node.js
@@ -69,7 +49,7 @@ This version uses **local JSON storage**, making it simple to run without databa
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 
@@ -89,9 +69,9 @@ MedTrack/
 
 ---
 
-# ✨ Features
+# Features
 
-## 💊 Medicine Management
+## Medicine Management
 
 - Add medicines
 - Track expiry date
@@ -106,7 +86,7 @@ MedTrack/
 
 ---
 
-## 👤 Patient Management
+## Patient Management
 
 - Register new patients
 - Store age, gender, disease
@@ -118,7 +98,7 @@ MedTrack/
 
 ---
 
-## 📊 Dashboard
+## Dashboard
 
 - Total medicines count
 - Total patients count
@@ -127,7 +107,7 @@ MedTrack/
 
 ---
 
-## 💰 Billing Support
+## Billing Support
 
 - Calculate final price after discount
 - Revenue tracking (per day)
@@ -135,7 +115,7 @@ MedTrack/
 
 ---
 
-## 📦 Local JSON Storage
+## Local JSON Storage
 
 - No external database required
 - Data stored in `data.json`
@@ -149,28 +129,28 @@ For production use → MongoDB is recommended.
 
 ---
 
-# ⚙️ Installation & Setup (Local)
+# Installation & Setup (Local)
 
-### 1️⃣ Clone Repository
+### 1) Clone Repository
 
 ```bash
-git clone https://github.com/your-username/medtrack.git
+git clone https://github.com/Prajwalm20/medtrack.git
 cd medtrack
 ````
 
-### 2️⃣ Install Dependencies
+### 2️) Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 3️⃣ Run Application
+### 3️) Run Application
 
 ```bash
 node server.js
 ```
 
-### 4️⃣ Open Browser
+### 4️) Open Browser
 
 ```
 http://localhost:5000
@@ -178,7 +158,7 @@ http://localhost:5000
 
 ---
 
-# 🔌 API Endpoints
+# API Endpoints
 
 ## Medicines
 
@@ -212,7 +192,7 @@ http://localhost:5000
 
 ---
 
-# 🚀 Deployment
+# Deployment
 
 You can deploy this project on:
 
@@ -232,21 +212,21 @@ For production:
 
 ---
 
-# 📈 Future Improvements
+# Future Improvements
 
-* 🔐 Admin Login System
-* 📊 Charts & Analytics
-* 🧾 PDF Bill Generation
-* 📅 Patient Recheck Reminder System
-* 📦 Supplier Management
-* ☁️ MongoDB Cloud Integration
-* 🔔 Notification System
-* 📱 PWA Support
-* 🌙 Dark Mode Toggle
+- Admin Login System
+- Charts & Analytics
+- PDF Bill Generation
+- Patient Recheck Reminder System
+- Supplier Management
+- MongoDB Cloud Integration
+- Notification System
+- PWA Support
+- Dark Mode Toggle
 
 ---
 
-# 🎓 Learning Outcomes
+# Learning Outcomes
 
 This project demonstrates:
 
@@ -261,35 +241,10 @@ This project demonstrates:
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 **Prajwal M**
 Engineering Student
 Aspiring Full Stack Developer 🚀
 
 ---
-
-# 📜 License
-
-This project is licensed under the MIT License.
-
----
-
-⭐ If you like this project, consider giving it a star!
-
-```
-
----
-
-🔥 Bro this now looks like a **real production-level GitHub project**.
-
-If you want, next we can:
-
-- Improve GitHub profile README  
-- Make project demo video script  
-- Add screenshots section  
-- Add MongoDB production version  
-- Add authentication system  
-
-Tell me next upgrade CTO 😎🚀
-```
